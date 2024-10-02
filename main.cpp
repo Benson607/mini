@@ -20,80 +20,138 @@ bool in(int num, vector<int> list) {
 	return false;
 }
 
+bool in(string str, vector<string> list) {
+        for (string i: list) {
+                if (str == i) {
+                        return true;
+                }
+        }
+        return false;
+}
+
 namespace MINI {
-	int num_now = 0;
+	int easy_status;
 	int input_size;
 	int output_size;
 	vector<string> name_list;
 	vector<string> output_list;
 	vector<string> solution_list;
-	vector<string> unsolution_list;
 	int set_solution(string solution, int first_reg = 1) {
-		if (first_reg) {
-			if (solution.length() != input_size) {
-				return 0;
+                if (first_reg) {
+                        if (solution.length() != input_size) {
+                                return 0;
+                        }
+                        for (int i = 0; i < input_size; i++) {
+                                if (solution[i] != '0' && solution[i] != '1' && solution[i] != '-') {
+                                        return -1;
+                                }
+                        }
+                }
+                for (int i = 0; i < input_size; i++) {
+                        if (solution[i] == '-') {
+                                solution[i] = '0';
+                                set_solution(solution, 0);
+                                solution[i] = '1';
+                                set_solution(solution, 0);
+                                return 1;
+                        }
+                }
+
+		if (!in(solution, solution_list)) {
+                	solution_list.push_back(solution);
+		}
+
+                return 1;
+        }
+	bool compare(string a, string b) {
+		int a_amount = 0;
+		int b_amount = 0;
+		int a_space_amount = 0;
+		int b_space_amount = 0;
+		for (int i = 0; i < input_size; i++) {
+			if (a[i] == '1') {
+				a_amount++;
 			}
+			if (b[i] == '1') {
+				b_amount++;
+			}
+			if (a[i] == '-') {
+                                a_space_amount++;
+                        }
+			if (b[i] == '-') {
+                                b_space_amount++;
+                        }
+		}
+		if (a_amount == b_amount) {
+			return a_space_amount < b_space_amount;
+		}
+		return b_amount < a_amount;
+	}
+	void sort() {
+		for (int i = 0; i < solution_list.size() - 1; i++) {
+			int min = i;
+			for (int j = i + 1; j < solution_list.size(); j++) {
+				if (compare(solution_list[min], solution_list[j])) {
+					min = j;
+				}
+			}
+			string tmp = solution_list[i];
+			solution_list[i] = solution_list[min];
+			solution_list[min] = tmp;
+		}
+	}
+	string easy(string a, string b) {
+		int same_amount = 0;
+		for (int i = 0; i < input_size; i++) {
+			if (a[i] == b[i]) {
+				same_amount++;
+			}
+		}
+		string ans = "";
+		if (same_amount == input_size - 1) {
+			ans = a;
 			for (int i = 0; i < input_size; i++) {
-				if (solution[i] != '0' && solution[i] != '1' && solution[i] != '-') {
-					return -1;
+				if (a[i] != b[i]) {
+					ans[i] = '-';
+					break;
 				}
 			}
 		}
-		for (int i = 0; i < input_size; i++) {
-			if (solution[i] == '-') {
-				solution[i] = '0';
-				set_solution(solution, 0);
-				solution[i] = '1';
-				set_solution(solution, 0);
-				return 1;
-			}
-		}
-
-		solution_list.push_back(solution);
-
-		return 1;
+		return ans;
 	}
-	int get_unsolution(string solution, int first_reg = 1) {
-		if (first_reg) {
-			if (solution.length() != input_size) {
-				return 0;
-			}
-			for (int i = 0; i < input_size; i++) {
-				if (solution[i] != '0' && solution[i] != '1' && solution[i] != '-') {
-					return -1;
+	void make_easy() {
+		easy_status = 0;
+		sort();
+		vector<int> easy_list(solution_list.size(), 1);
+		vector<string> new_solution_list(0);
+		for (int i = 0; i < solution_list.size(); i++) {
+			for (int j = i + 1; j < solution_list.size(); j++) {
+				string easy_solution = easy(solution_list[i], solution_list[j]);
+				if (easy_solution.length()) {
+					if (!in(easy_solution, new_solution_list)) {
+						new_solution_list.push_back(easy_solution);
+					}
+					easy_status = 1;
+					easy_list[i] = 0;
+					easy_list[j] = 0;
 				}
 			}
 		}
-		for (int i = 0; i < input_size; i++) {
-			if (solution[i] == '-') {
-				solution[i] = '0';
-				get_unsolution(solution, 0);
-				solution[i] = '1';
-				get_unsolution(solution, 0);
-				return 1;
+		for (int i = 0; i < easy_list.size(); i++) {
+			if (easy_list[i]) {
+				if (!in(solution_list[i], new_solution_list)) {
+					new_solution_list.push_back(solution_list[i]);
+				}
 			}
 		}
-
-		unsolution_list.push_back(solution);
-
-		return 1;
-	}
-	int compute(string solution) {
-		for (string i: solution_list) {
-			if (i == solution) {
-				return 1;
-			}
+		solution_list = new_solution_list;
+		if (easy_status) {
+			make_easy();
 		}
-		for (string i: unsolution_list) {
-			if (i == solution) {
-				return 0;
-			}
-		}
-		return 0;
-	}
-    string transfer() {
-
-    }
+        }
+    	string transfer() {
+		return "";
+    	}
 }
 
 int main(int argc, char* argv[]) {
@@ -136,18 +194,18 @@ int main(int argc, char* argv[]) {
 			string name;
 			while (orderstream >> name) {
 				for (int i = 0; i < name.length(); i++) {
-                    if (name[i] < 48 || 57 < name[i] && name[i] < 65 || 90 < name[i] && name[i] < 97 && name[i] != 95 || name[i] > 122) {
-                        cout << "only accept english letter or number or _ : " << name << endl;
-                        return -3;
-                	}
-                }
+                    			if (name[i] < 48 || 57 < name[i] && name[i] < 65 || 90 < name[i] && name[i] < 97 && name[i] != 95 || name[i] > 122) {
+                        		cout << "only accept english letter or number or _ : " << name << endl;
+                        		return -3;
+                			}
+                		}
 				MINI::name_list.push_back(name);
 			}
 			if (MINI::name_list.size() != MINI::input_size) {
 				cout << ".ilb amount not correct" << endl;
 				return -4;
 			}
-        }
+        	}
 		else if (op == ".ob") {
 			string output_name;
 			while (orderstream >> output_name) {
@@ -162,7 +220,7 @@ int main(int argc, char* argv[]) {
 				cout << i << " ";
 			}
 			cout << endl;
-        }
+        	}
 		else if (op == ".p") {
 			int times;
 			orderstream >> times;
@@ -178,11 +236,11 @@ int main(int argc, char* argv[]) {
 				}
 				int solution_status;
 				
-				if (ans == "1") {
+				if (ans == "1" || ans == "-") {
 					solution_status = MINI::set_solution(solution);
 				}
 				else {
-					solution_status = MINI::get_unsolution(solution);
+					continue;
 				}
 
 				if (solution_status == 0) {
@@ -210,6 +268,22 @@ int main(int argc, char* argv[]) {
 	}
 
 	src.close();
+	
+	MINI::sort();
+
+	for (string i: MINI::solution_list) {
+                cout << i << " ";
+        }
+	cout << endl;
+
+
+	MINI::make_easy();
+
+	MINI::sort();
+
+	for (string i: MINI::solution_list) {
+		cout << i << endl;
+	}
 
 	ofstream trg;
 	trg.open(argv[2], ios::ate);
@@ -225,7 +299,7 @@ int main(int argc, char* argv[]) {
 		file_name.push_back(argv[2][i]);
 	}
 
-	string transfer = MINI::transfer();
+	string transfer = "";
 
 	trg.write(transfer.c_str(), transfer.length());
 	
