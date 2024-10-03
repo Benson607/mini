@@ -7,8 +7,8 @@ else
 	check=${check:-y}
 
 	if [[ "$check" == "y" || "$check" == "Y" ]]; then
-		sudo apt-get update
-		sudo apt-get install g++
+		apt-get update
+		apt-get install g++
 	else
 		echo "not allow to install g++"
 	fi
