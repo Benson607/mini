@@ -150,8 +150,45 @@ namespace MINI {
 		}
         }
     	string transfer() {
-		return "";
+		string ans = ".i ";
+		ans.append(to_string(input_size));
+		ans.push_back('\n');
+		ans.append(".o ");
+		ans.append(to_string(output_size));
+		ans.push_back('\n');
+		ans.append(".ilb");
+		for (int i = 0; i < name_list.size(); i++) {
+			ans.push_back(' ');
+			ans.append(name_list[i]);
+		}
+		ans.push_back('\n');
+		ans.append(".ob");
+		for (int i = 0; i < output_list.size(); i++) {
+                        ans.push_back(' ');
+                        ans.append(output_list[i]);
+                }
+		ans.push_back('\n');
+		ans.append(".p ");
+		ans.append(to_string(solution_list.size()));
+		ans.push_back('\n');
+		for (int i = 0; i < solution_list.size(); i++) {
+			ans.append(solution_list[i]);
+			ans.append(" 1\n");
+		}
+		ans.append(".e");
+		return ans;
     	}
+	int get_literals() {
+		int ans = 0;
+		for (int i = 0; i < solution_list.size(); i++) {
+			for (int j = 0; j < input_size; j++) {
+				if (solution_list[i][j] != '-') {
+					ans++;
+				}
+			}
+		}
+		return ans;
+	}
 }
 
 int main(int argc, char* argv[]) {
@@ -184,11 +221,9 @@ int main(int argc, char* argv[]) {
 		}
 		else if (op == ".i") {
 			orderstream >> MINI::input_size;
-			cout << "get " << MINI::input_size << " input" << endl;
 		}
 		else if (op == ".o") {
 			orderstream >> MINI::output_size;
-			cout << "get " << MINI::output_size << " output" << endl;
 		}
 		else if (op == ".ilb") {
 			string name;
@@ -215,11 +250,6 @@ int main(int argc, char* argv[]) {
 				cout << ".ob amount not correct" << endl;
 				return -5;
 			}
-			cout << "set function name ";
-			for (string i: MINI::output_list) {
-				cout << i << " ";
-			}
-			cout << endl;
         	}
 		else if (op == ".p") {
 			int times;
@@ -252,13 +282,8 @@ int main(int argc, char* argv[]) {
 					return -7;
 				}
 			}
-			for (string i: MINI::solution_list){
-				cout << i << " ";
-			}
-			cout << endl;
 		}
 		else if (op == ".e") {
-			cout << "compile finish" << endl;
 			break;
 		}
 		else {
@@ -270,20 +295,8 @@ int main(int argc, char* argv[]) {
 	src.close();
 	
 	MINI::sort();
-
-	for (string i: MINI::solution_list) {
-                cout << i << " ";
-        }
-	cout << endl;
-
-
 	MINI::make_easy();
-
 	MINI::sort();
-
-	for (string i: MINI::solution_list) {
-		cout << i << endl;
-	}
 
 	ofstream trg;
 	trg.open(argv[2], ios::ate);
@@ -299,7 +312,10 @@ int main(int argc, char* argv[]) {
 		file_name.push_back(argv[2][i]);
 	}
 
-	string transfer = "";
+	cout << "Total number of terms: " << MINI::solution_list.size() << endl;
+	cout << "Total number of literals: " << MINI::get_literals() << endl;
+
+	string transfer = MINI::transfer();
 
 	trg.write(transfer.c_str(), transfer.length());
 	
