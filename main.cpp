@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <math.h>
 #include <set>
 using namespace std;
 
@@ -27,6 +28,18 @@ bool in(string str, vector<string> list) {
                 }
         }
         return false;
+}
+
+bool can_be(string solution, int num) {
+	string num_b = "";
+	while (num) {
+		num_b.insert(0, num % 2 + 48);
+		num = num % 2;
+	}
+	while (num_b.length() < solution.length()) {
+		num_b.insert(0, '0');
+	}
+	return solution == num_b;
 }
 
 namespace MINI {
@@ -149,6 +162,31 @@ namespace MINI {
 			make_easy();
 		}
         }
+	void petrick() {
+		vector<vector<bool>> petrick_list(pow(2, input_size), vector<bool>(solution_list.size(), false));
+		for (int i = 0; i < solution_list.size(); i++) {
+			for (int j = 0; j < petrick_list.size(); j++) {
+				if (can_be(solution_list[i], j)) {
+					petrick_list[i][j] = true;
+				}
+			}
+		}
+		vector<string> petrick_solution_list(0);
+		vector<vector<bool>> petrick_list_easy(0);
+		for (int i = 0; i < petrick_list[0].size(); i++) {
+			int times = 0;
+			for (int j = 0; j < petrick_list.size(); j++) {
+				if (petrick_list[j][i]) {
+					if (times == 1) {
+						petrick_solution_list.push_back(solution_list[j]);
+						petrick_list_easy.push_back(petrick_list[j]);
+						break;
+					}
+					times++;
+				}
+			}
+		}
+	}
     	string transfer() {
 		string ans = ".i ";
 		ans.append(to_string(input_size));
