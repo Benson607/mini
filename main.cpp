@@ -33,13 +33,23 @@ bool in(string str, vector<string> list) {
 bool can_be(string solution, int num) {
 	string num_b = "";
 	while (num) {
-		num_b.insert(0, num % 2 + 48);
+		num_b.insert(0, 1, num % 2 + 48);
 		num = num % 2;
 	}
 	while (num_b.length() < solution.length()) {
-		num_b.insert(0, '0');
+		num_b.insert(0, 1, '0');
 	}
 	return solution == num_b;
+}
+
+vector<bool> mix_vector(vector<bool> a, vector<bool> b) {
+	vector<bool> ans(a.size(), false);
+	for (int i = ; i < ans.size(); i++) {
+		if (a[i] || b[i]) {
+			ans[i] = true;
+		}
+	}
+	return ans;
 }
 
 namespace MINI {
@@ -49,6 +59,7 @@ namespace MINI {
 	vector<string> name_list;
 	vector<string> output_list;
 	vector<string> solution_list;
+	vector<string> dontcare_list;
 	int set_solution(string solution, int first_reg = 1) {
                 if (first_reg) {
                         if (solution.length() != input_size) {
@@ -158,6 +169,10 @@ namespace MINI {
 			}
 		}
 		solution_list = new_solution_list;
+		for (int i = 0; i <solution_list.size(); i++) {
+			cout << solution_list[i] << " ";
+		}
+		cout << endl;
 		if (easy_status) {
 			make_easy();
 		}
@@ -185,6 +200,16 @@ namespace MINI {
 					times++;
 				}
 			}
+		}
+	}
+	void del_dontcare() {
+		int i = 0;
+		while (i < solution_list.size()) {
+			if (in(solution_list[i], dontcare_list)) {
+				solution_list.erase(solution_list.begin() + i);
+				i--;
+			}
+			i++;
 		}
 	}
     	string transfer() {
@@ -304,8 +329,12 @@ int main(int argc, char* argv[]) {
 				}
 				int solution_status;
 				
-				if (ans == "1" || ans == "-") {
+				if (ans == "1") {
 					solution_status = MINI::set_solution(solution);
+				}
+				else if (ans == "-") {
+					solution_status = MINI::set_solution(solution);
+					MINI::dontcare_list.push_back(solution);
 				}
 				else {
 					continue;
@@ -333,23 +362,18 @@ int main(int argc, char* argv[]) {
 	src.close();
 	
 	MINI::sort();
+	for (int i = 0; i < MINI::solution_list.size(); i++) {
+		cout << MINI::solution_list[i] << " ";
+	}
+	cout << endl;
 	MINI::make_easy();
 	MINI::sort();
+
+	MINI::del_dontcare();
 
 	ofstream trg;
 	trg.open(argv[2], ios::ate);
 	
-	string file_name = "";
-	for (int i =0; i < sizeof(argv[2]) / sizeof(char); i++) {
-		if (argv[2][i] == '/') {
-			file_name = "";
-		}
-		if (argv[2][i] == '.') {
-			break;
-		}
-		file_name.push_back(argv[2][i]);
-	}
-
 	cout << "Total number of terms: " << MINI::solution_list.size() << endl;
 	cout << "Total number of literals: " << MINI::get_literals() << endl;
 
