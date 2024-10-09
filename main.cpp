@@ -52,6 +52,16 @@ vector<bool> mix_vector(vector<bool> a, vector<bool> b) {
 	return ans;
 }
 
+template<typename T>
+bool compare_vector(vector<T> a, vector<T> b) {
+	for (int i = 0; i < a.size(); i++) {
+		if (a[i] != b[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
 namespace MINI {
 	int easy_status;
 	int input_size;
@@ -178,16 +188,37 @@ namespace MINI {
 		}
         }
 	void petrick() {
-		vector<vector<bool>> petrick_list(pow(2, input_size), vector<bool>(solution_list.size(), false));
+		vector<vector<bool>> petrick_list(solution_list.size(), vector<bool>(pow(2, input_size), false));
+		vector<bool> mix_all(petrick_list.size(), false);
 		for (int i = 0; i < solution_list.size(); i++) {
-			for (int j = 0; j < petrick_list.size(); j++) {
+			for (int j = 0; j < petrick_list[0].size(); j++) {
 				if (can_be(solution_list[i], j)) {
 					petrick_list[i][j] = true;
 				}
 			}
 		}
+		for (int i = 0; i < petrick_list.size(); i++) {
+			mix_all = mix_vector(mix_all, petrick_list[i]);
+		}
 		vector<string> petrick_solution_list(0);
 		vector<vector<bool>> petrick_list_easy(0);
+		
+		vector<bool> mix_try(petrick_list[0].size(), false);
+		vector<int> mix_list(1, -1);
+		while (!compare_vector(mix_try, mix_all)) {
+			mix_try = vector<bool>(petrick_list[0].size(), false);
+			mix_list[mix_list.size() - 1]++;
+			if (mix_list[mix_list.size() - 1] >= petricl_list.size()) {
+				
+			}
+			for (int i = mix_list.size() - 1; i >= 0; i--) {
+				mix_list[i]++;
+				if (mix_list[i] >= petrick_list.size()) {
+					mix_list
+				}
+			}
+		}
+		
 		for (int i = 0; i < petrick_list[0].size(); i++) {
 			int times = 0;
 			for (int j = 0; j < petrick_list.size(); j++) {
