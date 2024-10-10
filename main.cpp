@@ -12,6 +12,8 @@
 #include <set>
 using namespace std;
 
+string err;
+
 bool in(int num, vector<int> list) {
 	for (int i: list) {
 		if (num == i) {
@@ -30,21 +32,39 @@ bool in(string str, vector<string> list) {
         return false;
 }
 
+void get_all_solution(string solution, vector<string>& solution_list) {
+	for (int i = 0; i < solution.length(); i++) {
+		if (solution[i] == '-') {
+			solution[i] = '0';
+			get_all_solution(solution, solution_list);
+			solution[i] = '1';
+			get_all_solution(solution, solution_list);
+		}
+	}
+	solution_list.push_back(solution);
+}
+
 bool can_be(string solution, int num) {
+	vector <string> list(0);
+	get_all_solution(solution, list);
 	string num_b = "";
 	while (num) {
 		num_b.insert(0, 1, num % 2 + 48);
-		num = num % 2;
+		num = num / 2;
 	}
 	while (num_b.length() < solution.length()) {
-		num_b.insert(0, 1, '0');
+		num_b = num_b.insert(0, 1, '0');
+		cout << "add" << endl;
 	}
-	return solution == num_b;
+	return in(num_b, list);
 }
 
 vector<bool> mix_vector(vector<bool> a, vector<bool> b) {
+	if (a.size() != b.size()) {
+		err.append("not same");
+	}
 	vector<bool> ans(a.size(), false);
-	for (int i = ; i < ans.size(); i++) {
+	for (int i = 0; i < ans.size(); i++) {
 		if (a[i] || b[i]) {
 			ans[i] = true;
 		}
@@ -187,11 +207,29 @@ namespace MINI {
 			make_easy();
 		}
         }
+	int add_one(vector<int>& list, int max, int i) {
+		if (i < 0) {
+			return 1;
+		}
+		if (list[i] < max - 1) {
+			list[i]++;
+		}
+		else {
+			list[i] = 0;
+			int status = add_one(list, max, i - 1);
+			if (status) {
+				list.push_back(0);
+			}
+
+		}
+		return 0;
+	}
 	void petrick() {
 		vector<vector<bool>> petrick_list(solution_list.size(), vector<bool>(pow(2, input_size), false));
 		vector<bool> mix_all(petrick_list.size(), false);
 		for (int i = 0; i < solution_list.size(); i++) {
 			for (int j = 0; j < petrick_list[0].size(); j++) {
+				cout << solution_list[i] << " " << j << endl;
 				if (can_be(solution_list[i], j)) {
 					petrick_list[i][j] = true;
 				}
@@ -200,38 +238,47 @@ namespace MINI {
 		for (int i = 0; i < petrick_list.size(); i++) {
 			mix_all = mix_vector(mix_all, petrick_list[i]);
 		}
-		vector<string> petrick_solution_list(0);
+
 		vector<vector<bool>> petrick_list_easy(0);
 		
 		vector<bool> mix_try(petrick_list[0].size(), false);
 		vector<int> mix_list(1, -1);
-		while (!compare_vector(mix_try, mix_all)) {
+		while (mix_list.size() < solution_list.size()) {
 			mix_try = vector<bool>(petrick_list[0].size(), false);
-			mix_list[mix_list.size() - 1]++;
-			if (mix_list[mix_list.size() - 1] >= petricl_list.size()) {
-				
+			add_one(mix_list, petrick_list.size(), mix_list.size() - 1);
+			//for (int i = mix_list.size() - 1; i >= 0; i--) {
+			//	mix_list[i]++;
+			//	if (mix_list[i] >= petrick_list.size()) {
+			//		mix_list = mix_vector(mix_try, petrick_list[i]);
+			//	}
+			//}
+			for (int i = 0; i < mix_list.size(); i++) {
+				cout << mix_list[i] << " ";
 			}
-			for (int i = mix_list.size() - 1; i >= 0; i--) {
-				mix_list[i]++;
-				if (mix_list[i] >= petrick_list.size()) {
-					mix_list
-				}
+			cout << endl;
+			for (int i = 0; i < mix_list.size(); i++) {
+				mix_try = mix_vector(mix_try, petrick_list[mix_list[i]]);
 			}
-		}
-		
-		for (int i = 0; i < petrick_list[0].size(); i++) {
-			int times = 0;
-			for (int j = 0; j < petrick_list.size(); j++) {
-				if (petrick_list[j][i]) {
-					if (times == 1) {
-						petrick_solution_list.push_back(solution_list[j]);
-						petrick_list_easy.push_back(petrick_list[j]);
-						break;
-					}
-					times++;
-				}
+			if (compare_vector(mix_try, mix_all)) {
+				break;
 			}
 		}
+		cout << "mix_try ";
+		for (int i = 0; i < mix_try.size(); i++) {
+			cout << mix_try[i] << " ";
+		}
+		cout << endl << "mix_all ";
+		for (int i = 0; i < mix_all.size(); i++) {
+			cout << mix_all[i] << " ";
+                }
+		cout << endl;
+		vector<string> new_solution_list;
+		for (int i = 0; i < mix_list.size(); i++) {
+			if (!in(solution_list[i], new_solution_list)) {
+				new_solution_list.push_back(solution_list[i]);
+			}
+		}
+		solution_list = new_solution_list;
 	}
 	void del_dontcare() {
 		int i = 0;
@@ -401,6 +448,10 @@ int main(int argc, char* argv[]) {
 	MINI::sort();
 
 	MINI::del_dontcare();
+
+	MINI::petrick();
+	
+	cout << err << endl;
 
 	ofstream trg;
 	trg.open(argv[2], ios::ate);
