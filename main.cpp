@@ -12,8 +12,6 @@
 #include <set>
 using namespace std;
 
-string err;
-
 bool in(int num, vector<int> list) {
 	for (int i: list) {
 		if (num == i) {
@@ -54,14 +52,21 @@ bool can_be(string solution, int num) {
 	}
 	while (num_b.length() < solution.length()) {
 		num_b = num_b.insert(0, 1, '0');
-		cout << "add" << endl;
 	}
 	return in(num_b, list);
 }
 
 vector<bool> mix_vector(vector<bool> a, vector<bool> b) {
 	if (a.size() != b.size()) {
-		err.append("not same");
+		cout << "not same: a";
+		for (int i = 0; i < a.size(); i++) {
+			cout << " " << a[i];
+		}
+		cout << " b";
+		for (int i = 0; i < b.size(); i++) {
+			cout << " " << b[i];
+		}
+		cout << endl;
 	}
 	vector<bool> ans(a.size(), false);
 	for (int i = 0; i < ans.size(); i++) {
@@ -199,14 +204,10 @@ namespace MINI {
 			}
 		}
 		solution_list = new_solution_list;
-		for (int i = 0; i <solution_list.size(); i++) {
-			cout << solution_list[i] << " ";
-		}
-		cout << endl;
 		if (easy_status) {
 			make_easy();
 		}
-        }
+    }
 	int add_one(vector<int>& list, int max, int i) {
 		if (i < 0) {
 			return 1;
@@ -226,10 +227,9 @@ namespace MINI {
 	}
 	void petrick() {
 		vector<vector<bool>> petrick_list(solution_list.size(), vector<bool>(pow(2, input_size), false));
-		vector<bool> mix_all(petrick_list.size(), false);
+		vector<bool> mix_all(petrick_list[0].size(), false);
 		for (int i = 0; i < solution_list.size(); i++) {
 			for (int j = 0; j < petrick_list[0].size(); j++) {
-				cout << solution_list[i] << " " << j << endl;
 				if (can_be(solution_list[i], j)) {
 					petrick_list[i][j] = true;
 				}
@@ -246,16 +246,6 @@ namespace MINI {
 		while (mix_list.size() < solution_list.size()) {
 			mix_try = vector<bool>(petrick_list[0].size(), false);
 			add_one(mix_list, petrick_list.size(), mix_list.size() - 1);
-			//for (int i = mix_list.size() - 1; i >= 0; i--) {
-			//	mix_list[i]++;
-			//	if (mix_list[i] >= petrick_list.size()) {
-			//		mix_list = mix_vector(mix_try, petrick_list[i]);
-			//	}
-			//}
-			for (int i = 0; i < mix_list.size(); i++) {
-				cout << mix_list[i] << " ";
-			}
-			cout << endl;
 			for (int i = 0; i < mix_list.size(); i++) {
 				mix_try = mix_vector(mix_try, petrick_list[mix_list[i]]);
 			}
@@ -263,15 +253,7 @@ namespace MINI {
 				break;
 			}
 		}
-		cout << "mix_try ";
-		for (int i = 0; i < mix_try.size(); i++) {
-			cout << mix_try[i] << " ";
-		}
-		cout << endl << "mix_all ";
-		for (int i = 0; i < mix_all.size(); i++) {
-			cout << mix_all[i] << " ";
-                }
-		cout << endl;
+
 		vector<string> new_solution_list;
 		for (int i = 0; i < mix_list.size(); i++) {
 			if (!in(solution_list[i], new_solution_list)) {
@@ -440,18 +422,12 @@ int main(int argc, char* argv[]) {
 	src.close();
 	
 	MINI::sort();
-	for (int i = 0; i < MINI::solution_list.size(); i++) {
-		cout << MINI::solution_list[i] << " ";
-	}
-	cout << endl;
 	MINI::make_easy();
 	MINI::sort();
 
 	MINI::del_dontcare();
 
 	MINI::petrick();
-	
-	cout << err << endl;
 
 	ofstream trg;
 	trg.open(argv[2], ios::ate);
